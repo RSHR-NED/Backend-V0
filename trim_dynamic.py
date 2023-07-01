@@ -28,14 +28,14 @@ def trim(audio_file_path):
         while (end_index <= (start_index + int(max_len * sample_rate))) and (end_index <= len(audio)):
             chunk = audio[start_index : end_index]
             sf.write("./audios/temp_chunk.wav", chunk, sample_rate)
-            predicted_word, confidence = predict_word("./audios/temp_chunk.wav")
+            predicted_word, confidence, pred_index = predict_word("./audios/temp_chunk.wav")
             if confidence > 0.88:
                 break
             current_stride += stride_len
             end_index = start_index + int((word_length_stats[word]['min'] + current_stride) * sample_rate)
 
-        predictions.append((predicted_word, confidence))
-        print(f"predicted word: {predicted_word}, confidence: {confidence}")
+        predictions.append((predicted_word, confidence, pred_index))
+        print(f"predicted word: {predicted_word}, confidence: {confidence}, 'label': {pred_index}")
         chunk_length_samples += int((word_length_stats[word]['min'] + current_stride) * sample_rate)
         start_index = chunk_length_samples
         sf.write(f"./audios/temp_trim_chunks/{word.split('/')[-1]}.wav", chunk, sample_rate)
@@ -45,13 +45,13 @@ def trim(audio_file_path):
     for prediction in predictions:
         print(prediction)
         
-    return audio_chunks
+    return predictions
     
 
 
 # example usage
 if __name__ == "__main__":
-    file_path = "./audios/001002 - Abdullah Basfar.mp3"
+    file_path = "./audios/014_TqE4rW4Q.wav"
     # file_path = "./audios/001002 - Abdurrahmaan As-Sudais.mp3"
     trim(file_path)
 

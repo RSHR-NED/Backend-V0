@@ -2,7 +2,7 @@ import librosa
 import tensorflow as tf
 import numpy as np
 import math
-SAVED_MODEL_PATH = "./model_spect_cnn_98.h5"
+SAVED_MODEL_PATH = "./model_balance_cnn_95.h5"
 SAMPLE_RATE = 22050
 TRACK_DURATION = 2 # measured in seconds
 SAMPLES_PER_TRACK = SAMPLE_RATE * TRACK_DURATION
@@ -74,7 +74,7 @@ class _Keyword_Spotting_Service:
         # index return the index which has highest score
         predicted_keyword = self._mapping[predicted_index]
         # print('prediction',predicted_index,predicted_keyword)
-        return predicted_keyword, confidence_score
+        return predicted_keyword, confidence_score, predicted_index
 
 
     def save_mfcc(self,file_path,num_mfcc=40, n_fft=2048, hop_length=512, num_segments=10):
@@ -127,8 +127,8 @@ def predict_word(file_path):
     assert kss is kss1
 
     # make a prediction
-    keyword, conf = kss.predict(file_path)
-    return keyword, conf
+    keyword, conf, index = kss.predict(file_path)
+    return keyword, conf, index
 
 
 # example use
