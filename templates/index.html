@@ -4,12 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Virtual Quran Assistant </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
 </head>
 <body>
+    <h2> Word Predictor </h2>
     <form action="/api/predict_word" method="POST" enctype="multipart/form-data">
-        <input id="audio_file" name="audio_file" type="file" accept=".mp3,.wav">
+        <input id="audio_file" name="audio_file" type="file" accept=".mp3,.wav"> <br> 
         <input type="submit" value="Submit">
     </form>
-    
+
+    <hr>
+
+    <h2> Ayat Recitation Accuracy </h2>
+    <form action="/api/ayat_accuracy" method="POST" enctype="multipart/form-data">
+        <label for="audio_file">Audio File</label> <br>
+        <input id="audio_file" name="audio_file" type="file" accept=".mp3,.wav"> <br> <br>
+
+        <label for="surah_number">Surah</label> <br>
+        <select id="surah_number" name="surah_number">
+            <option value="1">Surah Al Fatiha</option>
+            <option disabled value="2">Surah Al Baqarah</option>
+            <option disabled value="3">Surah Al Imran</option>
+        </select> <br> <br>
+
+        <label for="ayat_number">Ayat Number</label> <br>
+        <input id="ayat_number" name="ayat_number" type="number" min="1" max="286"> <br> <br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <hr>
+
+    <h2> Ayat Accuracy Results </h2>
+    <h3> Audio </h3>
+    <audio controls>
+        <source src="{{ url_for('static', filename='a1_0.wav') }}" type="audio/wav">
+    </audio>
+    <div class="word-container">
+        {% for word in ["Alhamdu", "lillaahi", "Rabbil", "aalameen"] %}
+        <p style='color:{% if word == "Alhamdu" %}green{% elif word == "lillaahi" %}red{% else %}yellow{% endif %}; display: inline;'><b> {{ word }} </b></p>
+        {% endfor %}
+    </div>
+    <hr>
 </body>
 </html>

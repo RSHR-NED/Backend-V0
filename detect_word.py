@@ -2,7 +2,8 @@ import librosa
 import tensorflow as tf
 import numpy as np
 import math
-SAVED_MODEL_PATH = "./model_spect_cnn_98.h5"
+# SAVED_MODEL_PATH = "./model_spect_cnn_98.h5"
+SAVED_MODEL_PATH = "./model_cnn_aug_90.h5"
 SAMPLE_RATE = 22050
 TRACK_DURATION = 2 # measured in seconds
 SAMPLES_PER_TRACK = SAMPLE_RATE * TRACK_DURATION
@@ -133,8 +134,8 @@ def predict_word(file_path):
 
 # example use
 if __name__ == "__main__":
-    # file_path = "./audios/Alhumdu.wav"
-    file_path = "./audios/001002 - Abdullah Basfar.mp3"
+    file_path = "./audios/Alameen.wav"
+    # file_path = "./audios/001002 - Abdullah Basfar.mp3"
     keyword, conf = predict_word(file_path)
     print(f"Predicted keyword: {keyword}")
     print(f"Confidence: {conf}")

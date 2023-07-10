@@ -6,7 +6,7 @@ import os
 def trim(audio_file_path):
     audio_chunks = []  # Initialize array to store all the chunks of audio data
     audio, sample_rate = librosa.load(audio_file_path, sr=None)  
-
+    print(f"Ayat audio length: {len(audio)}")
     stride_len = 0.01  # stride used while chunking each word
     start_index = 0
     chunk_length_samples = 0
@@ -32,7 +32,7 @@ def trim(audio_file_path):
             if confidence > 0.88:
                 break
             current_stride += stride_len
-            end_index = start_index + int((word_length_stats[word]['min'] + current_stride) * sample_rate)
+            end_index = start_index + int((min_len + current_stride) * sample_rate)
 
         predictions.append((predicted_word, confidence))
         print(f"predicted word: {predicted_word}, confidence: {confidence}")
@@ -51,7 +51,7 @@ def trim(audio_file_path):
 
 # example usage
 if __name__ == "__main__":
-    file_path = "./audios/001002 - Abdullah Basfar.mp3"
-    # file_path = "./audios/001002 - Abdurrahmaan As-Sudais.mp3"
+    # file_path = "./audios/001002 - Abdullah Basfar.mp3"
+    file_path = "./audios/001002 - Abdurrahmaan As-Sudais.mp3"
     trim(file_path)
 
