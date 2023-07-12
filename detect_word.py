@@ -2,7 +2,8 @@ import librosa
 import tensorflow as tf
 import numpy as np
 import math
-SAVED_MODEL_PATH = "./model_balance_cnn_95.h5"
+# SAVED_MODEL_PATH = "./model_balance_cnn_95.h5"
+SAVED_MODEL_PATH = "./model_cnn_aug_90.h5"
 SAMPLE_RATE = 22050
 TRACK_DURATION = 2 # measured in seconds
 SAMPLES_PER_TRACK = SAMPLE_RATE * TRACK_DURATION
