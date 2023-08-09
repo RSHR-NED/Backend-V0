@@ -35,14 +35,17 @@ def trim(audio_file_path):
             end_index = start_index + int((min_len + current_stride) * sample_rate)
 
         # get the best chunk (highest confidence)
-        predicted_word, confidence, best_stride = max(possible_chunks, key=lambda x: x[1])  
+        predicted_word, confidence, current_stride = max(possible_chunks, key=lambda x: x[1])  
 
         # create the chunk according to the best stride
-        chunk = audio[start_index : start_index + int((word_length_stats[word]['min'] + best_stride) * sample_rate)]
+        chunk = audio[start_index : start_index + int((min_len + current_stride) * sample_rate)]
 
+        # # predict the word from the trimmed out word
+        # predicted_word, confidence = predict_word(chunk)
+        
         predictions.append((predicted_word, confidence))
-        print(f"Predicted word: {predicted_word}, confidence: {confidence}, stride: {best_stride}")
-        chunk_length_samples += int((word_length_stats[word]['min'] + best_stride) * sample_rate)
+        print(f"Predicted word: {predicted_word}, confidence: {confidence}, stride: {current_stride}")
+        chunk_length_samples += int((word_length_stats[word]['min'] + current_stride) * sample_rate)
         start_index = chunk_length_samples
         sf.write(f"./audios/temp_trim_chunks/{word.split('/')[-1]}.wav", chunk, sample_rate)
         audio_chunks.append(chunk)

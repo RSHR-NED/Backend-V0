@@ -31,9 +31,8 @@ def predict_word_api():
     confidence_score = round(float(confidence_score), 4)
     os.remove(save_path)  # delete temp file
     print("Prediction completed")
-    print(f"Predicted keyword: {predicted_word}, confidence score: {confidence_score}")
 
-    return jsonify({'predicted_keyword': predicted_word, 'confidence_score': confidence_score}), 200
+    return jsonify({'predicted_word': predicted_word, 'confidence_score': confidence_score})
 
     
 @app.route('/api/ayat_accuracy', methods=['POST'])
@@ -53,12 +52,11 @@ def ayat_accuracy():
     audio_file.save(save_path)  # save the file 
 
     predictions = get_ayat_words_accuracy(save_path, surah_number, ayat_number)
-    predictions = [(predicted_word, float(confidence)) for predicted_word, confidence in predictions]
-    print(predictions, "PREDICTIONS HERE")
+    predictions = [(predicted_word, float(confidence)) for predicted_word, confidence in predictions]  # converting to float for json serializability which numpy float isn't
     correctness_levels, ayat_words = mark_correctness_levels(surah_number, ayat_number, predictions)
     os.remove(save_path)  # delete temp file
 
-    return jsonify({'predictions': predictions, 'correctness_levels': correctness_levels, 'ayat_words': ayat_words}), 200
+    return jsonify({'predictions': predictions, 'correctness_levels': correctness_levels, 'actual_ayat_words': ayat_words, 'surah_number': surah_number, 'ayat_number': ayat_number}), 200
 
 
 if __name__ == "__main__":

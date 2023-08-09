@@ -64,13 +64,15 @@ surah_ayat_words = {
     }
 }
 
+# TODO: change logic of following function according to trim_dynamic2.py
 def get_ayat_words_accuracy(ayat_audio_path, surah_number: int, ayat_number: int):
     """
     Returns prediction and accuracy of each word in an ayat
     """
     surah_ayat_number = f"{str(surah_number).zfill(3)}/{str(ayat_number).zfill(3)}"  # form surah_ayat_number prefix of format 00x/00y where x is surah number and y is ayat number    
     current_ayat_word_length_stats = word_length_stats[str(surah_number).zfill(3)][surah_ayat_number]  # get stats of word lengths in the ayat
-    audio_chunks = []  # chunks of ayat (words)
+    # eg current_ayat_word_length_stats for surah 1 ayat 2 = {"001/002/005": {'min': 0.5, 'max': 1.091, 'avg': 0.7868571428571431}, "001/002/006": {'min': 0.615, 'max': 1.111, 'avg': 0.83425}, "001/002/007": {'min': 0.4, 'max': 0.912, 'avg': 0.68875}, "001/002/008": {'min': 1.161, 'max': 2.709, 'avg': 1.9520357142857143}}
+    
     predictions = []  # word, confidence pairs for all predicted words in ayat
     ayat_audio, sample_rate = librosa.load(ayat_audio_path, sr=None)  # load the ayat ayat_audio
     print(f"Ayat audio length: {len(ayat_audio)}")
@@ -86,18 +88,25 @@ def get_ayat_words_accuracy(ayat_audio_path, surah_number: int, ayat_number: int
 
         # apply sliding window approach to find trim out word
         current_stride = 0
-        end_index = start_index + int((min_len + current_stride))
+        end_index = start_index + int((min_len + current_stride) * sample_rate)
+        possible_word_chunks = []
         while (end_index <= (start_index + int(max_len * sample_rate))) and (end_index <= len(ayat_audio)): 
             chunk = ayat_audio[start_index : end_index]
-            print(f"CHUNK LENGTH: {len(chunk)}")
             temp_chunk_save_path = os.path.join(os.path.dirname(__file__), "audios/temp_trim_chunks", "temp_chunk.wav").replace("\\", "/")
-            print(f"Saved to {temp_chunk_save_path}")
             sf.write(temp_chunk_save_path, chunk, sample_rate)
             predicted_word, confidence = predict_word(temp_chunk_save_path)
-            if confidence > 0.88:
-                break
+            possible_word_chunks.append((predicted_word, confidence, current_stride))
             current_stride += stride_len
             end_index = start_index + int((min_len + current_stride) * sample_rate)
+
+        # find the chunk with highest confidence
+        predicted_word, confidence, current_stride = max(possible_word_chunks, key=lambda x: x[1])
+
+        # trim out the word from the ayat
+        chunk = ayat_audio[start_index : start_index + int((min_len + current_stride) * sample_rate)]
+
+        # # predict the word from the trimmed out word
+        # predicted_word, confidence = predict_word(chunk)
 
         predictions.append((predicted_word, confidence))
 
@@ -105,8 +114,8 @@ def get_ayat_words_accuracy(ayat_audio_path, surah_number: int, ayat_number: int
         chunk_length_samples += int((min_len + current_stride) * sample_rate)
         start_index = chunk_length_samples 
 
-        sf.write(f"./audios/temp_trim_chunks/{word.split('/')[-1]}.wav", chunk, sample_rate)
-        audio_chunks.append(chunk)
+        temp_word_save_path = os.path.join(os.path.dirname(__file__), "audios/temp_trim_chunks", f"{word.split('/')[-1]}.wav").replace("\\", "/")
+        sf.write(temp_word_save_path, chunk, sample_rate)
 
     return predictions
 
@@ -114,6 +123,8 @@ def get_ayat_words_accuracy(ayat_audio_path, surah_number: int, ayat_number: int
 def mark_correctness_levels(surah_number: int, ayat_number: int, predictions):
     surah_ayat_number = f"{str(surah_number).zfill(3)}/{str(ayat_number).zfill(3)}"  # form surah_ayat_number prefix of format 00x/00y where x is surah number and y is ayat number    
     ayat_words = surah_ayat_words[str(surah_number).zfill(3)][surah_ayat_number]
+    # eg ayat_words for surah 1 ayat 2 = ["Alhamdu", "lillaahi", "Rabbil", "aalameen"]
+    
     correctness_levels = []
     for idx, prediction in enumerate(predictions):
         predicted_word, confidence = prediction
@@ -128,5 +139,6 @@ def mark_correctness_levels(surah_number: int, ayat_number: int, predictions):
                 correctness_levels.append("medium")
 
     return correctness_levels, ayat_words
+
 
         
