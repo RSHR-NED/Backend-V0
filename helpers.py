@@ -133,7 +133,7 @@ def mark_correctness_levels(surah_number: int, ayat_number: int, predictions):
             correctness_levels.append("low")
         
         else:
-            if confidence > 93:
+            if confidence > 0.93:
                 correctness_levels.append("high")
             else:
                 correctness_levels.append("medium")
